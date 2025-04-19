@@ -4,13 +4,12 @@ export namespace AST {
     export interface IVisitor<T> {
         visitLanguage(node: AST.Language): T;
         visitRule(node: AST.Rule): T;
-        visitProdList(node: AST.ProdList): T;
         visitProd(node: AST.Prod): T;
         visitExpr(node: AST.Expr): T;
-        visitElemGroup(node: AST.ElemGroup): T;
-        visitElem(node: AST.Elem): T;
-        visitNonTerm(node: AST.NonTerm): T;
+        visitOperand(node: AST.Operand): T;
         visitTerm(node: AST.Term): T;
+        visitRuleName(node: AST.RuleName): T;
+        visitLiteral(node: AST.Literal): T;
     }
 
     export abstract class Node {
@@ -23,22 +22,14 @@ export namespace AST {
         }
     }
     export class Rule extends Node {
-        public body: ProdList = new ProdList();
+        public body: Prod = new Prod();
         constructor(
-            public head?: NonTerm,
+            public head?: RuleName,
         ) {
             super();
         }
         override accept<T>(visitor: IVisitor<T>): T {
             return visitor.visitRule(this);
-        }
-    }
-    export class ProdList extends Node {
-        constructor(public list: Prod[] = []) {
-            super();
-        }
-        override accept<T>(visitor: IVisitor<T>): T {
-            return visitor.visitProdList(this);
         }
     }
     export class Prod extends Node {
@@ -53,8 +44,7 @@ export namespace AST {
     }
     export class Expr extends Node {
         constructor(
-            public elemGroup?: ElemGroup,
-            public operator?: TokenType,
+            public operands: Operand[] = [],
         ) {
             super();
         }
@@ -62,31 +52,32 @@ export namespace AST {
             return visitor.visitExpr(this);
         }
     }
-    export class ElemGroup extends Node {
+    export class Operand extends Node {
         constructor(
-            public elems: Elem[] = [],
+            public terms: Term[] = [],
+            public operators: (TokenType|null)[] =[],
         ) {
             super();
         }
         override accept<T>(visitor: IVisitor<T>): T {
-            return visitor.visitElemGroup(this);
+            return visitor.visitOperand(this);
         }
     }
-    export enum ElemType {
-        NON_TERM, TERM, PROD
+    export enum TermType {
+        RULE_NAME, LITERAL, EXPR
     }
-    export class Elem extends Node {
+    export class Term extends Node {
         constructor(
-            public value?: (NonTerm|Term),
-            public prodValue?: Prod,
+            public value?: (RuleName|Literal|Expr),
+            public type?: TermType,
         ) {
             super();
         }
         override accept<T>(visitor: IVisitor<T>): T {
-            return visitor.visitElem(this);
+            return visitor.visitTerm(this);
         }
     }
-    export class NonTerm extends Node {
+    export class RuleName extends Node {
         constructor(
             public value?: string,
             public ignore?: boolean,
@@ -95,17 +86,17 @@ export namespace AST {
             super();
         }
         override accept<T>(visitor: IVisitor<T>): T {
-            return visitor.visitNonTerm(this);
+            return visitor.visitRuleName(this);
         }
     }
-    export class Term extends Node {
+    export class Literal extends Node {
         constructor(
             public value?: string,
         ) {
             super();
         }
         override accept<T>(visitor: IVisitor<T>): T {
-            return visitor.visitTerm(this);
+            return visitor.visitLiteral(this);
         }
     }
 }

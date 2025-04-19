@@ -7,17 +7,6 @@ export class ASTPrinter implements AST.IVisitor<string> {
     log(node: AST.Node) {
         console.log(node.accept(this));
     }
-    private parenthesize(name: string, ...nodes: AST.Node[]): string {
-        const result: string[] = [];
-        result.push("(");
-        result.push(name);
-        for (const node of nodes) {
-            result.push(" ");
-            result.push(node.accept(this));
-        }
-        result.push(")");
-        return result.join("");
-    }
 
     private indent(): string {
         const res: string[] = [];
@@ -40,72 +29,58 @@ export class ASTPrinter implements AST.IVisitor<string> {
         result.push(`\n)`);
         return result.join("");
     }
-    visitRule(node: AST.Rule): string {
-        
+    visitRule(node: AST.Rule): string { 
         return `(${node.head!.accept(this)} ::= ${node.body.accept(this)})`;
-    }
-    visitProdList(node: AST.ProdList): string {
-        if(node.list.length <= 0) {
-            return "()";
-        }
-        const result: string[] = [];
-        result.push('(PRODLIST');
-        this._indent++;
-        result.push(this.indent());
-        for(const prod of node.list) {
-            result.push('\n');
-            result.push(this.indent());
-            result.push(prod.accept(this));
-        }
-        result.push("\n");
-        this._indent--;
-        result.push(this.indent());
-        result.push(")");
-        return result.join("");
     }
     visitProd(node: AST.Prod): string {
         if(node.list.length <= 0) {
             return "()";
         }
         const result: string[] = [];
+        result.push(`(PRODs\n`);
+        this._indent++;
+        result.push(this.indent());
         for(const expr of node.list) {
-            result.push(`${expr.accept(this)} `);
+            result.push(' ');
+            result.push(expr.accept(this));
         }
-        return result.join("");
+        result.push("\n");
+        this._indent--;
+        result.push(this.indent());
+        result.push(")");
+        return result.join("");   
     }
     visitExpr(node: AST.Expr): string {
-        if(!node.operator) {
-            return node.elemGroup!.accept(this);
-        }
-        else {
-            return `(${TokenType[node.operator]} ${node.elemGroup!.accept(this)})`;
-        }
-    }
-    visitElemGroup(node: AST.ElemGroup): string {
-        var res: string[] = [];
-        res.push("(EG");
-        for(const el of node.elems) {
-            res.push(" ");
-            res.push(el.accept(this));
-        }
-        res.push(")");
-        return res.join("");
-    }
-    visitElem(node: AST.Elem): string {
         const res: string[] = [];
-        if(node.value) {
-            res.push(node.value!.accept(this));
+        for(const op of node.operands) {
+            res.push(op.accept(this));
         }
-        if(node.prodValue) {
-            res.push(" ")
-            res.push(node.prodValue!.accept(this))
+        return res.join(" | ");
+    }
+    visitOperand(node: AST.Operand): string {
+        const res: string[] = [];
+        for(let i = 0; i < node.terms.length; i++) {
+            const term = node.terms[i];
+            const operator = node.operators[i];
+            if(!operator) {
+                res.push(term.accept(this));
+            }
+            else {
+                res.push(`(${TokenType[operator]} `);
+                res.push(term.accept(this));
+                res.push(`) `);
+            }
         }
         return res.join("");
-    }
-    visitNonTerm(node: AST.NonTerm): string {
-        return `<${node.value}>`;
     }
     visitTerm(node: AST.Term): string {
-        return `"${node.value}"`;
+        return node.value!.accept(this);
     }
+    visitRuleName(node: AST.RuleName): string {
+        return node.value!;
+    }
+    visitLiteral(node: AST.Literal): string {
+        return node.value!;
+    }
+
 }

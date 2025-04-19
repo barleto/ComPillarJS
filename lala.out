@@ -1,0 +1,48 @@
+
+> compillar@1.0.0 start
+> npx tsx src/main.ts
+
+### RULE IGNORE_RULE[2,4,6] = IGNORE
+### PROD LITERAL[2,15,11] = "COmment??"
+### EXPR LITERAL[2,15,11] = "COmment??"
+### OPER LITERAL[2,15,11] = "COmment??"
+### TERM LITERAL[2,15,11] = "COmment??"
+### TERM BACK OR[2,27,1] = |
+### OPER BACK OR[2,27,1] = |
+### EXPR BACK OR[2,27,1] = |
+### OPER LITERAL[2,29,20] = "multilined comment"
+### TERM LITERAL[2,29,20] = "multilined comment"
+### TERM BACK SEMI_COL[2,49,1] = ;
+### OPER BACK SEMI_COL[2,49,1] = ;
+### EXPR BACK SEMI_COL[2,49,1] = ;
+### PROD BACK SEMI_COL[2,49,1] = ;
+### RULE BACK RULE[6,4,6] = <RULE>
+### RULE RULE[6,4,6] = <RULE>
+### PROD RULE[6,15,10] = <NON-TERM>
+### EXPR RULE[6,15,10] = <NON-TERM>
+### OPER RULE[6,15,10] = <NON-TERM>
+### TERM RULE[6,15,10] = <NON-TERM>
+### TERM BACK QUEST[6,25,1] = ?
+### OPER BACK QUEST[6,25,1] = ?
+### EXPR BACK LEFT_PAREN[6,27,1] = (
+### PROD BACK LEFT_PAREN[6,27,1] = (
+### EXPR LEFT_PAREN[6,27,1] = (
+### OPER LEFT_PAREN[6,27,1] = (
+### TERM LEFT_PAREN[6,27,1] = (
+AAAAAAAA
+### EXPR RULE[6,28,12] = <ziriguidum>
+### OPER RULE[6,28,12] = <ziriguidum>
+### TERM RULE[6,28,12] = <ziriguidum>
+### TERM BACK STAR[6,40,1] = *
+### OPER BACK STAR[6,40,1] = *
+### EXPR BACK RULE[6,42,14] = <OleleOlala__>
+### TERM BACK RULE[6,42,14] = <OleleOlala__>
+### OPER BACK RULE[6,42,14] = <OleleOlala__>
+### OPER RULE[6,42,14] = <OleleOlala__>
+### TERM RULE[6,42,14] = <OleleOlala__>
+### TERM BACK RIGHT_PAREN[6,56,1] = )
+### OPER BACK RIGHT_PAREN[6,56,1] = )
+### EXPR BACK RIGHT_PAREN[6,56,1] = )
+### PROD BACK RIGHT_PAREN[6,56,1] = )
+### RULE BACK RIGHT_PAREN[6,56,1] = )
+### RULE RIGHT_PAREN[6,56,1] = )

@@ -85,6 +85,7 @@ export class Lexer {
         this._definitions.push(new TokenDefinition(/[)]/g, TokenType.RIGHT_PAREN));
         this._definitions.push(new TokenDefinition(/[+]/g, TokenType.PLUS));
         this._definitions.push(new TokenDefinition(/[*]/g, TokenType.STAR));
+        this._definitions.push(new TokenDefinition(/[?]/g, TokenType.QUEST));
         this._definitions.push(new TokenDefinition(/IGNORE/g, TokenType.IGNORE_RULE));
         this._definitions.push(new TokenDefinition(/;/g, TokenType.SEMI_COL));
         this._definitions.push(new TokenDefinition(/\/\/.*(?=\n)/g, TokenType.ONE_LINE_COMM));

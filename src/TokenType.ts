@@ -11,5 +11,6 @@ export enum TokenType {
     STAR,
     SEMI_COL,
     ONE_LINE_COMM,
-    MULTI_LINE_COMM
+    MULTI_LINE_COMM,
+    QUEST,
 }

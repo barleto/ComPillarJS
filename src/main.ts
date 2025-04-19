@@ -80,113 +80,114 @@ class Parser implements AST.IVisitor<any> {
     visitLanguage(node: AST.Language) {
         while(!this.isAtEnd()) {
             const rule = new AST.Rule();
-            rule.accept(this);
             node.rules.push(rule);
+            rule.accept(this);
         }
-        return;
     }
     visitRule(node: AST.Rule) {
+        //console.log(`### RULE ${this.peek().toString()}`);
         const headToken = this.peek();
         this.advance();
         this.match(TokenType.ARROW);
         if(headToken.type == TokenType.RULE) {
-            node.head = new AST.NonTerm(headToken.value, false);
+            node.head = new AST.RuleName(headToken.value, false);
         }
         else if(headToken.type == TokenType.IGNORE_RULE) {
-            node.head = new AST.NonTerm(headToken.value, true);
+            node.head = new AST.RuleName(headToken.value, true);
         }
         else {
             throw Error(`Expected token ${TokenType[TokenType.RULE]}, but found ${TokenType[headToken.type]}`);
         }
 
         node.body.accept(this);
-        if(!this.match(TokenType.SEMI_COL)) {
-            throw Error(`Expected token ${TokenType[TokenType.SEMI_COL]}, near [${this.peek().lineno}:${this.peek().startPos}]`);
-        }
-        
-    }
-    visitProdList(node: AST.ProdList) {
-        while(true) {
-            const prod = new AST.Prod();
-            prod.accept(this);
-            node.list.push(prod);
-            if(!this.match(TokenType.OR)) {
-                break;
-            }
-        }
+        //console.log(`### RULE BACK ${this.peek().toString()}`);
     }
     visitProd(node: AST.Prod) {
-        while(this.peek().type == TokenType.LITERAL || this.peek().type == TokenType.RULE || this.peek().type == TokenType.LEFT_PAREN) {
+        //console.log(`### PROD ${this.peek().toString()}`);
+        while(this.peek().type != TokenType.SEMI_COL && this.peek().type != TokenType.RIGHT_PAREN) {
             const expr = new AST.Expr();
-            expr.accept(this);
             node.list.push(expr);
+            expr.accept(this);
+            //console.log(`### PROD BACK ${this.peek().toString()}`);
         }
+        !this.match(TokenType.SEMI_COL);
     }
     visitExpr(node: AST.Expr) {
-        node.elemGroup = new AST.ElemGroup();
-        node.elemGroup.accept(this)
-        if(this.peek().type == TokenType.STAR) {
-            node.operator = TokenType.STAR;
-            this.advance();
-        } else if(this.peek().type == TokenType.PLUS) {
-            node.operator = TokenType.PLUS;
-            this.advance();
+        //console.log(`### EXPR ${this.peek().toString()}`);
+        do{
+            const operand = new AST.Operand();
+            node.operands.push(operand);
+            operand.accept(this);
+            //console.log(`### EXPR BACK ${this.peek().toString()}`);
         }
+        while(this.match(TokenType.OR));
     }
-    visitElemGroup(node: AST.ElemGroup) {
-        //TODO LOOP
-            let isGroup = false;
-            if(this.peek().type == TokenType.LEFT_PAREN) {
-                this.match(TokenType.LEFT_PAREN);
-                isGroup = true;
+    visitOperand(node: AST.Operand) {
+        do{
+            //console.log(`### OPER ${this.peek().toString()}`);
+            const term = new AST.Term();
+            node.terms.push(term);
+            term.accept(this);
+            switch(this.peek().type) {
+                case TokenType.STAR:
+                case TokenType.PLUS:
+                case TokenType.QUEST:
+                    node.operators.push(this.peek().type);
+                    this.advance(); 
+                break;
+                default:
+                    node.operators.push(null);
+                break;
             }
-            const elem = new AST.Elem();
-            elem.accept(this);
-            node.elems.push(elem);
-            if(isGroup && !this.match(TokenType.RIGHT_PAREN)) {
-                throw new Error(`Expected closing parethesis ')' near [${this.peek().lineno}, ${this.peek().startPos}]`);
-            }
-    }
-    visitElem(node: AST.Elem) {
-        let peek = this.peek();
-        console.log(`${peek.toString()} / ${this.peek(1).toString()}`);
-        if(this.tokensLeft() < 2) {
-            throw new Error("Sudden finish of Token stream!");
+            //console.log(`### OPER BACK ${this.peek().toString()}`);
         }
-        
-        if(peek.type == TokenType.RULE) {
-            node.value = new AST.NonTerm();
-        }
-        else if(peek.type == TokenType.LITERAL) {
-            node.value = new AST.Term();
-        }
-        node.value?.accept(this);
-
-        peek = this.peek();
-        if(peek.type == TokenType.LITERAL || peek.type == TokenType.RULE || peek.type == TokenType.LEFT_PAREN) {
-            node.prodValue = new AST.Prod();
-            node.prodValue.accept(this);
-        }
-    }
-    visitNonTerm(node: AST.NonTerm) {
-        const t = this.peek();
-        node.value = t.value;
-        this.advance();
+        while(this.peek().type == TokenType.LITERAL || this.peek().type == TokenType.RULE);
     }
     visitTerm(node: AST.Term) {
-        const t = this.peek();
-        node.value = t.value;
+        //console.log(`### TERM ${this.peek().toString()}`);
+        const peek = this.peek();
+        if(peek.type == TokenType.RULE) {
+            node.value = new AST.RuleName();
+            node.type = AST.TermType.RULE_NAME;
+            node.value?.accept(this);
+        }
+        else if(peek.type == TokenType.LITERAL) {
+            node.value = new AST.Literal();
+            node.type = AST.TermType.LITERAL;
+            node.value?.accept(this);
+        }
+        else if(peek.type == TokenType.LEFT_PAREN) {
+            node.value = new AST.Expr();
+            node.type = AST.TermType.EXPR;
+            this.match(TokenType.LEFT_PAREN);
+            node.value.accept(this);
+            this.match(TokenType.RIGHT_PAREN);
+        }
+        //console.log(`### TERM BACK ${this.peek().toString()}`);
+    }
+    visitRuleName(node: AST.RuleName) {
+        const token = this.peek();
+        node.value = token.value;
         this.advance();
     }
-
+    visitLiteral(node: AST.Literal) {
+        const token = this.peek();
+        node.value = token.value;
+        this.advance();
+    }
+    
 }
 
 export let input = `
-    IGNORE ::= "COmment??" | "multilined comment";
-    //"single line comm"
-    /*possible multi-
-    -lined comm!*/
-    <RULE> ::= <NON-TERM>+ ((<ziriguidum>)* <ziriguidum>)+;
+<language> ::= <rule>*;
+<rule> ::= <non-term> "::=" <prod>;
+<prod> ::= <expr>+";";
+<expr> ::= <operand> ("|" <operand>)*;
+<operand> ::= <term>+ ("+"|"*"|"?")?;
+<term> ::= <ruleName> | <literal> | "(" <expr> ")";
+
+<ruleName> ::= "<[_a-zA-z][-_a-zA-z0-9]*>";
+<literal> ::= "\\"(?:[\\]\\"|[^\\"])*\\"";
 `;
 const lexer = new Lexer(input);
 const tokens = lexer.getTokens();
@@ -200,5 +201,6 @@ const lan = parser.parse();
     // ])));
     // lan.rules.push(new AST.Rule(new AST.NonTerm("sug8739")));
     // lan.rules.push(new AST.Rule(new AST.NonTerm("__363__asikdhjgf")));
+
 let printer = new ASTPrinter();
 printer.log(lan);
