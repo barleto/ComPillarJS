@@ -36,17 +36,42 @@ export class ASTPrinter implements AST.IVisitor<string> {
             result.push(this.indent());
             result.push(this.visitRule(rule));
         }
+        this._indent--;
         result.push(`\n)`);
         return result.join("");
     }
     visitRule(node: AST.Rule): string {
-        return `(${node.head.accept(this)} ::= BODY)`;
+        
+        return `(${node.head.accept(this)} ::= ${node.body.accept(this)})`;
     }
     visitProdList(node: AST.ProdList): string {
-        throw new Error("Method not implemented.");
+        if(node.list.length <= 0) {
+            return "()";
+        }
+        const result: string[] = [];
+        result.push('(');
+        this._indent++;
+        result.push(this.indent());
+        for(const prod of node.list) {
+            result.push('\n');
+            result.push(this.indent());
+            result.push(prod.accept(this));
+        }
+        result.push("\n");
+        this._indent--;
+        result.push(this.indent());
+        result.push(")");
+        return result.join("");
     }
     visitProd(node: AST.Prod): string {
-        throw new Error("Method not implemented.");
+        if(node.list.length <= 0) {
+            return "()";
+        }
+        const result: string[] = [];
+        for(const expr of node.list) {
+            result.push(`(${expr.accept(this)}) `);
+        }
+        return result.join("");
     }
     visitExpr(node: AST.Expr): string {
         if(!node.operator) {
@@ -57,10 +82,10 @@ export class ASTPrinter implements AST.IVisitor<string> {
         }
     }
     visitElemGroup(node: AST.ElemGroup): string {
-        return `(G ${node.accept(this)})`;
+        return `(G ${node.elem.accept(this)})`;
     }
     visitElem(node: AST.Elem): string {
-        return node.accept(this);
+        return node.value.accept(this);
     }
     visitNonTerm(node: AST.NonTerm): string {
         return `<${node.value}>`;

@@ -114,7 +114,10 @@ parser.parse();
 
 var printer = new ASTPrinter();
 const lan = new AST.Language();
-lan.rules.push(new AST.Rule(new AST.NonTerm("LALA")));
+lan.rules.push(new AST.Rule(new AST.NonTerm("LALA"), new AST.ProdList([
+    new AST.Prod([new AST.Expr(new AST.ElemGroup(new AST.Elem(new AST.Term("TErminal"), AST.ElemType.TERM)), TokenType.STAR)]),
+    new AST.Prod([new AST.Expr(new AST.ElemGroup(new AST.Elem(new AST.Term("TErminal2"), AST.ElemType.TERM)), /*TokenType.STAR*/)]),
+])));
 lan.rules.push(new AST.Rule(new AST.NonTerm("sug8739")));
 lan.rules.push(new AST.Rule(new AST.NonTerm("__363__asikdhjgf")));
 printer.log(lan);

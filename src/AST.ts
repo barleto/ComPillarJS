@@ -54,7 +54,7 @@ export namespace AST {
     export class Expr extends Node {
         constructor(
             public elemGroup: ElemGroup,
-            public operator: TokenType,
+            public operator?: TokenType,
         ) {
             super();
         }
@@ -96,7 +96,7 @@ export namespace AST {
     }
     export class Term extends Node {
         constructor(
-            value: string,
+            public value: string,
         ) {
             super();
         }
