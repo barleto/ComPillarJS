@@ -1,7 +1,7 @@
 import { input } from "./main";
 import { TokenType } from "./TokenType";
 
-function isComment(type: TokenType): Boolean {
+export function isComment(type: TokenType): Boolean {
     return type == TokenType.ONE_LINE_COMM || type == TokenType.MULTI_LINE_COMM;
 }
 class ScanMatchResult {
@@ -25,8 +25,8 @@ class ScanMatchResult {
 }
 class TokenDefinition {
 
-    _type: TokenType;
-    _pattern: RegExp;
+    private _type: TokenType;
+    private _pattern: RegExp;
 
     constructor(pattern: RegExp, type: TokenType) {
         this._pattern = pattern;
@@ -43,13 +43,15 @@ class TokenDefinition {
         return new ScanMatchResult(true, result[0], this._type, result.index, result.index + result[0].length);
     }
 }
-class Token {
-    type: TokenType;
-    value: String;
-    lineno: number;
-    startPos: number;
+export class Token {
+    readonly type: TokenType;
+    readonly typeName: string;
+    readonly value: String;
+    readonly lineno: number;
+    readonly startPos: number;
     constructor(type: TokenType, value: String, lineno: number, startPos: number) {
         this.type = type;
+        this.typeName = TokenType[type];
         this.value = value;
         this.lineno = lineno;
         this.startPos = startPos;
