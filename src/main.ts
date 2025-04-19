@@ -105,7 +105,7 @@ class Lexer {
         this._definitions.push(new TokenDefinition(/IGNORE/g, TokenType.IGNORE_RULE));
         this._definitions.push(new TokenDefinition(/;/g, TokenType.SEMI_COL));
         this._definitions.push(new TokenDefinition(/\/\/.*(?=\n)/g, TokenType.ONE_LINE_COMM));
-        this._definitions.push(new TokenDefinition(/[\/][*][\\s\\S]*?[*][\/]/g, TokenType.MULTI_LINE_COMM));
+        this._definitions.push(new TokenDefinition(/\/[*][\s\S]*?[*]\//g, TokenType.MULTI_LINE_COMM));
     }
 
     getTokens(): Token[] {
