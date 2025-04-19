@@ -80,7 +80,7 @@ export class Parser implements AST.IVisitor<any> {
         }
     }
     visitRule(node: AST.Rule) {
-        //console.log(`### RULE ${this.peek().toString()}`);
+        // console.log(`### RULE ${this.peek().toString()}`);
         const headToken = this.peek();
         this.advance();
         this.match(TokenType.ARROW);
@@ -95,31 +95,31 @@ export class Parser implements AST.IVisitor<any> {
         }
 
         node.body.accept(this);
-        //console.log(`### RULE BACK ${this.peek().toString()}`);
+        // console.log(`### RULE BACK ${this.peek().toString()}`);
     }
     visitProd(node: AST.Prod) {
-        //console.log(`### PROD ${this.peek().toString()}`);
+        // console.log(`### PROD ${this.peek().toString()}`);
         while (this.peek().type != TokenType.SEMI_COL && this.peek().type != TokenType.RIGHT_PAREN) {
             const expr = new AST.Expr();
             node.list.push(expr);
             expr.accept(this);
-            //console.log(`### PROD BACK ${this.peek().toString()}`);
+            // console.log(`### PROD BACK ${this.peek().toString()}`);
         }
         !this.match(TokenType.SEMI_COL);
     }
     visitExpr(node: AST.Expr) {
-        //console.log(`### EXPR ${this.peek().toString()}`);
+        // console.log(`### EXPR ${this.peek().toString()}`);
         do {
             const operand = new AST.Operand();
             node.operands.push(operand);
             operand.accept(this);
-            //console.log(`### EXPR BACK ${this.peek().toString()}`);
+            // console.log(`### EXPR BACK ${this.peek().toString()}`);
         }
         while (this.match(TokenType.OR));
     }
     visitOperand(node: AST.Operand) {
         do {
-            //console.log(`### OPER ${this.peek().toString()}`);
+            // console.log(`### OPER ${this.peek().toString()}`);
             const term = new AST.Term();
             node.terms.push(term);
             term.accept(this);
@@ -134,12 +134,12 @@ export class Parser implements AST.IVisitor<any> {
                     node.operators.push(null);
                     break;
             }
-            //console.log(`### OPER BACK ${this.peek().toString()}`);
+            // console.log(`### OPER BACK ${this.peek().toString()}`);
         }
-        while (this.check(TokenType.LITERAL) || this.check(TokenType.RULE));
+        while (this.check(TokenType.LITERAL) || this.check(TokenType.RULE) || this.check(TokenType.LEFT_PAREN));
     }
     visitTerm(node: AST.Term) {
-        //console.log(`### TERM ${this.peek().toString()}`);
+        // console.log(`### TERM ${this.peek().toString()}`);
         const peek = this.peek();
         if (peek.type == TokenType.RULE) {
             node.value = new AST.RuleName();
@@ -158,7 +158,7 @@ export class Parser implements AST.IVisitor<any> {
             node.value.accept(this);
             this.match(TokenType.RIGHT_PAREN);
         }
-        //console.log(`### TERM BACK ${this.peek().toString()}`);
+        // console.log(`### TERM BACK ${this.peek().toString()}`);
     }
     visitRuleName(node: AST.RuleName) {
         const token = this.peek();

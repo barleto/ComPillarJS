@@ -71,7 +71,7 @@ export class ASTPrinter implements AST.IVisitor<string> {
                 res.push(`) `);
             }
         }
-        return res.join("");
+        return res.join(" ");
     }
     visitTerm(node: AST.Term): string {
         return node.value!.accept(this);

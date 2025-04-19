@@ -7,7 +7,7 @@ export let input = `
 <rule> ::= <non-term> "::=" <prod>;
 <prod> ::= <expr>+";";
 <expr> ::= <operand> ("|" <operand>)*;
-<operand> ::= <term>+ ("+"|"*"|"?")?;
+<operand> ::= ( <term> ("+"|"*"|"?")? )+;
 <term> ::= <ruleName> | <literal> | "(" <expr> ")";
 
 <ruleName> ::= "<[_a-zA-z][-_a-zA-z0-9]*>";
