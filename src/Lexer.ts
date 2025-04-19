@@ -46,10 +46,10 @@ class TokenDefinition {
 export class Token {
     readonly type: TokenType;
     readonly typeName: string;
-    readonly value: String;
+    readonly value: string;
     readonly lineno: number;
     readonly startPos: number;
-    constructor(type: TokenType, value: String, lineno: number, startPos: number) {
+    constructor(type: TokenType, value: string, lineno: number, startPos: number) {
         this.type = type;
         this.typeName = TokenType[type];
         this.value = value;

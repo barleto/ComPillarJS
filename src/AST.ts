@@ -23,9 +23,9 @@ export namespace AST {
         }
     }
     export class Rule extends Node {
+        public body: ProdList = new ProdList();
         constructor(
-            public head: NonTerm,
-            public body: ProdList = new ProdList()
+            public head?: NonTerm,
         ) {
             super();
         }
@@ -53,7 +53,7 @@ export namespace AST {
     }
     export class Expr extends Node {
         constructor(
-            public elemGroup: ElemGroup,
+            public elemGroup?: ElemGroup,
             public operator?: TokenType,
         ) {
             super();
@@ -64,7 +64,7 @@ export namespace AST {
     }
     export class ElemGroup extends Node {
         constructor(
-            public elem: Elem
+            public elems: Elem[] = [],
         ) {
             super();
         }
@@ -77,8 +77,8 @@ export namespace AST {
     }
     export class Elem extends Node {
         constructor(
-            public value: Node,
-            public type: ElemType,
+            public value?: (NonTerm|Term),
+            public prodValue?: Prod,
         ) {
             super();
         }
@@ -87,7 +87,11 @@ export namespace AST {
         }
     }
     export class NonTerm extends Node {
-        constructor(public value: string) {
+        constructor(
+            public value?: string,
+            public ignore?: boolean,
+
+        ) {
             super();
         }
         override accept<T>(visitor: IVisitor<T>): T {
@@ -96,7 +100,7 @@ export namespace AST {
     }
     export class Term extends Node {
         constructor(
-            public value: string,
+            public value?: string,
         ) {
             super();
         }

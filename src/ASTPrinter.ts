@@ -42,14 +42,14 @@ export class ASTPrinter implements AST.IVisitor<string> {
     }
     visitRule(node: AST.Rule): string {
         
-        return `(${node.head.accept(this)} ::= ${node.body.accept(this)})`;
+        return `(${node.head!.accept(this)} ::= ${node.body.accept(this)})`;
     }
     visitProdList(node: AST.ProdList): string {
         if(node.list.length <= 0) {
             return "()";
         }
         const result: string[] = [];
-        result.push('(');
+        result.push('(PRODLIST');
         this._indent++;
         result.push(this.indent());
         for(const prod of node.list) {
@@ -69,23 +69,38 @@ export class ASTPrinter implements AST.IVisitor<string> {
         }
         const result: string[] = [];
         for(const expr of node.list) {
-            result.push(`(${expr.accept(this)}) `);
+            result.push(`${expr.accept(this)} `);
         }
         return result.join("");
     }
     visitExpr(node: AST.Expr): string {
         if(!node.operator) {
-            return node.elemGroup.accept(this);
+            return node.elemGroup!.accept(this);
         }
         else {
-            return `(${TokenType[node.operator]} ${node.elemGroup.accept(this)})`;
+            return `(${TokenType[node.operator]} ${node.elemGroup!.accept(this)})`;
         }
     }
     visitElemGroup(node: AST.ElemGroup): string {
-        return `(G ${node.elem.accept(this)})`;
+        var res: string[] = [];
+        res.push("(EG");
+        for(const el of node.elems) {
+            res.push(" ");
+            res.push(el.accept(this));
+        }
+        res.push(")");
+        return res.join("");
     }
     visitElem(node: AST.Elem): string {
-        return node.value.accept(this);
+        const res: string[] = [];
+        if(node.value) {
+            res.push(node.value!.accept(this));
+        }
+        if(node.prodValue) {
+            res.push(" ")
+            res.push(node.prodValue!.accept(this))
+        }
+        return res.join("");
     }
     visitNonTerm(node: AST.NonTerm): string {
         return `<${node.value}>`;
